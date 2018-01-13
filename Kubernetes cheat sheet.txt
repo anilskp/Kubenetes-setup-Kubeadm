@@ -1,0 +1,67 @@
+-- Start a simple container of nginx
+
+kubectl run nginx --image nginx
+kubectl run tomcat --image tomcat
+
+-- expose the service 
+
+kubectl expose deployments nginx --port=8080  --target-port=80 --type=NodePort
+kubectl expose deployments tomcat --port=8080:80 --type=LoadBalancer
+
+watch 'kubectl get svc'
+
+---Scale the pods 
+
+kubectl scale --replicas=3 deployment/nginx
+
+kubectl scale --replicas=6 deployment/tomcat
+
+--- Delete pods 
+
+kubectl delete deployment/tomcat
+
+
+
+Get the Master FQDN from deployments
+
+qrk8sacs.westeurope.cloudapp.azure.com
+
+
+--List pods in all namesspaces
+kubectl get pods --all-namespaces
+
+-- List all nodes and with details
+kubectl get nodes 
+kubectl get nodes -o yaml
+
+
+
+-- Create a pod and deployment  Swarmdemo and redis
+kubectl run swarmdemo  --image anilskp/swarmdemo
+kubectl run redis  --image redis
+
+--expose the nginx deployment as a Kubernetes service on the private service network 
+kubectl expose deployment nginx --port=80
+
+--expose the swarmdemo and redis deployment as a Kubernetes service on the private service network 
+kubectl expose deployment swarmdemo   --port=5000  --type=LoadBalancer
+kubectl expose deployment redis --port=6379
+
+-- if --type=LoadBalancer is not mentioned do the below -----
+--The final step is to expose the service to the world. This is done by changing the service type from ClusterIP to LoadBalancer:
+--edit the service: kubectl edit svc/nginx
+--change type from ClusterIP to LoadBalancer and save it. This will now cause Kubernetes to create an Azure Load Balancer with a public IP.
+--the change will take about 2-3 minutes. To watch the service change from "pending" to an external ip type watch 'kubectl get svc'
+
+kubectl edit svc/swarmdemo
+
+-- Scale the pod
+kubectl scale --replicas=3 deployment/swarmdemo
+
+-- Get list of pods in details like nodes
+
+kubectl get pods -o wide
+
+
+-- Delete services 
+kubectl delete service swarmdemo
